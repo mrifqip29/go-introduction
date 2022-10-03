@@ -13,7 +13,7 @@ func main() {
 		log.Printf("err %v", err)
 	}
 	log.Printf("data %+v", data)
-	log.Printf("response time %s", time.Since(start).String())
+	log.Printf("response time sequential %s", time.Since(start).String())
 
 	start = time.Now()
 	data, err = getConcurrent(123)
@@ -21,7 +21,7 @@ func main() {
 		log.Printf("err %v", err)
 	}
 	log.Printf("data %+v", data)
-	log.Printf("response time %s", time.Since(start).String())
+	log.Printf("response time concurrency %s", time.Since(start).String())
 
 }
 
@@ -35,6 +35,7 @@ func getConcurrent(productID int64) (data ProductDisplayPage, err error) {
 	var mtx sync.Mutex
 	wg.Add(4)
 
+	// Get Product
 	go func() {
 		defer wg.Done()
 		var errGo error
@@ -47,6 +48,7 @@ func getConcurrent(productID int64) (data ProductDisplayPage, err error) {
 		}
 	}()
 
+	// Get Media
 	go func() {
 		defer wg.Done()
 		var errGo error
@@ -59,6 +61,7 @@ func getConcurrent(productID int64) (data ProductDisplayPage, err error) {
 		}
 	}()
 
+	// Get Flashsale
 	go func() {
 		defer wg.Done()
 		var errGo error
@@ -71,6 +74,7 @@ func getConcurrent(productID int64) (data ProductDisplayPage, err error) {
 		}
 	}()
 
+	// Get Insight
 	go func() {
 		defer wg.Done()
 		var errGo error
@@ -106,21 +110,25 @@ func getConcurrent(productID int64) (data ProductDisplayPage, err error) {
 }
 
 func getSequential(productID int64) (data ProductDisplayPage, err error) {
+	// Get Product
 	product, err := GetProduct(productID)
 	if err != nil {
 		return data, err
 	}
 
+	// Get Media
 	media, err := GetMedia(productID)
 	if err != nil {
 		return data, err
 	}
 
+	// Get Flashsale
 	flashsale, err := GetFlashsale(productID)
 	if err != nil {
 		return data, err
 	}
 
+	// Get Insight
 	insight, err := GetInsight(productID)
 	if err != nil {
 		return data, err
